@@ -25,8 +25,8 @@ class FMMSegmenter:
                 size = 1
             
             # 匹配中文年份（如“二oo一年”或“二ooo年”）
-            elif re.match(r'^二[○O零]+[一二三四五六七八九十○O零]年', text[index:]):
-                match = re.match(r'^二[○O零]+[一二三四五六七八九十○O零]年', text[index:])
+            elif re.match(r'^[一二三四五六七八九十○O零]+年', text[index:]):
+                match = re.match(r'^[一二三四五六七八九十○O零]+年', text[index:])
                 word = match.group()
                 size = len(word)
 
@@ -84,20 +84,20 @@ class RMinMSegmenter:
                 size = 1
             
             # 匹配中文年份（如“二oo一年”或“二ooo年”）
-            elif re.match(r'^二[○O零]+[一二三四五六七八九十○O零]年', text[:index]):
-                match = re.match(r'^二[○O零]+[一二三四五六七八九十○O零]年', text[:index])
+            elif re.search(r'[一二三四五六七八九十○O零]+年$', text[:index]):
+                match = re.search(r'[一二三四五六七八九十○O零]+年$', text[:index])
                 word = match.group()
                 size = len(word)
 
             # 匹配数字（连续数字如21、2021等）
-            elif re.match(r'^\d+', text[:index]):
-                match = re.match(r'^\d+', text[:index])
+            elif re.search(r'\d+$', text[:index]):
+                match = re.search(r'\d+$', text[:index])
                 word = match.group()  # 匹配到的完整数字字符串
                 size = len(word)
 
             # 匹配字母（连续字母如oo、ooo等）
-            elif re.match(r'^[a-zA-Z○]+', text[:index]):
-                match = re.match(r'^[a-zA-Z○]+', text[:index])
+            elif re.search(r'[a-zA-Z○]+$', text[:index]):
+                match = re.search(r'[a-zA-Z○]+$', text[:index])
                 word = match.group()  # 匹配到的完整字母字符串
                 size = len(word)
 
