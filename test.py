@@ -1,23 +1,55 @@
+from sklearn.metrics import precision_score, recall_score, f1_score
+
+# 加载测试文件和黄金标准文件
+def load_data(test_file, gold_file):
+    with open(test_file, 'r', encoding='utf-8') as tf, open(gold_file, 'r', encoding='utf-8') as gf:
+        test_lines = tf.readlines()
+        gold_lines = gf.readlines()
+    assert len(test_lines) == len(gold_lines), "测试文件与黄金标准文件的行数不一致"
+    return test_lines, gold_lines
+
+# 测试分词器
+def test_segmenter(segmenter, test_lines, gold_lines):
+    y_true = []
+    y_pred = []
+    for test_line, gold_line in zip(test_lines, gold_lines):
+        test_text = test_line.strip()
+        gold_tokens = gold_line.strip().split()
+        y_true.extend(gold_tokens)  # 黄金标准分词结果
+        y_pred.extend(segmenter.segment(test_text))  # 分词器输出
+    return y_true, y_pred
+
+# 计算分词准确率
+def evaluate(y_true, y_pred):
+    if len(y_true) != len(y_pred):
+        print("list length are different between y_true and y_pred, show first 20 elements")
+        print("y_true:{}".format(len(y_true))) 
+        print(y_true[:20])
+        print("y_pred:{}".format(len(y_pred)))
+        print(y_pred[:20])
+        return
+    precision = precision_score(y_true, y_pred, average='micro')
+    recall = recall_score(y_true, y_pred, average='micro')
+    f1 = f1_score(y_true, y_pred, average='micro')
+    print(f"Precision: {precision:.2f}")
+    print(f"Recall: {recall:.2f}")
+    print(f"F1 Score: {f1:.2f}")
+
 from segmenter import FMMSegmenter, RMinMSegmenter
 
-def FMMtest():
+if __name__ == "__main__":
+    # 文件路径
+    test_file = "pku_test_mini.txt"  # 测试文件路径
+    gold_file = "pku_test_mini_gold.txt"  # 黄金标准文件路径
+
+    # 加载数据
+    test_lines, gold_lines = load_data(test_file, gold_file)
+
     # 初始化分词器
     segmenter = FMMSegmenter('dict.txt')
 
-    # 测试分词
-    text = "清华大学自然语言处理研究"
-    print(segmenter.segment(text))
-    # 输出: ['清华大学', '自然语言处理', '研究']
+    # 测试分词器
+    y_true, y_pred = test_segmenter(segmenter, test_lines, gold_lines)
 
-def RMinMtest():
-    # 初始化分词器
-    segmenter = RMinMSegmenter('dict.txt')
-
-    # 测试分词
-    text = "清华大学自然语言处理研究"
-    print(segmenter.segment(text))
-    # 输出: ['清华大学', '自然语言处理', '研究']
-
-if __name__== '__main__':
-    FMMtest()
-    RMinMtest()
+    # 评估分词器性能
+    evaluate(y_true, y_pred)
