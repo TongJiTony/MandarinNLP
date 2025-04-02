@@ -4,8 +4,8 @@ from collections import defaultdict
 class CRFSegmenter:
     def __init__(self, labels):
         self.labels = labels
-        self.trans_probs = defaultdict(lambda: defaultdict(float))  # 转移概率矩阵
-        self.emit_probs = defaultdict(lambda: defaultdict(float))   # 发射概率矩阵
+        self.trans_probs = defaultdict(lambda: defaultdict(float))  # Tk转移概率矩阵，前一个状态到当前状态
+        self.emit_probs = defaultdict(lambda: defaultdict(float))   # Sj状态概率矩阵，观测值到当前状态
 
     def load_bmes_data(self, file_path):
         """ 读取 BMES 格式的训练数据 """
@@ -15,11 +15,41 @@ class CRFSegmenter:
             for sentence in lines:
                 sent_data = []
                 for line in sentence.split("\n"):
-                    if "\t" in line:  # 处理 "字\t标签" 的格式
-                        char, tag = line.split("\t")
-                        sent_data.append((char, tag))
+                    char, tag = line.split("\t")
+                    sent_data.append((char, tag))
                 train_data.append(sent_data)
         return train_data
+
+    def bmes_to_words(self, chars, tags):
+        words = []
+        word = ""
+        for char, tag in zip(chars, tags):
+            if tag == 'B':
+                if word:  # 如果当前有词，先加入到结果中
+                    words.append(word)
+                word = char
+            elif tag == 'M':
+                word += char
+            elif tag == 'E':
+                word += char
+                words.append(word)  # 结束一个词
+                word = ""
+            elif tag == 'S':
+                if word:  # 如果当前有词，先加入到结果中
+                    words.append(word)
+                words.append(char)  # S 直接是一个单独的词
+                word = ""
+        if word:  # 如果最后还有未结束的词，加入到结果中
+            words.append(word)
+        return words
+
+    def segment(self, text):
+        chars = list(text)  # 将输入文本转为字符列表
+        # dummy_tags = ['S'] * len(chars)  # 初始化一个假标签列表，仅用于生成特征
+        # sent = [(char, tag) for char, tag in zip(chars, dummy_tags)]
+        # X_test = self.extract_features(sent)  # 提取测试特征
+        y_pred = self.viterbi(chars)
+        return self.bmes_to_words(chars, y_pred) 
 
     def train(self, data):
         """ 训练模型，计算转移概率和发射概率 """
@@ -27,7 +57,7 @@ class CRFSegmenter:
         emit_counts = defaultdict(lambda: defaultdict(int))
         label_counts = defaultdict(int)
 
-        # 统计转移和发射概率
+        # 统计转移和状态概率
         for sent in data:
             prev_label = None
             for word, label in sent:
@@ -38,13 +68,13 @@ class CRFSegmenter:
                     trans_counts[prev_label][label] += 1
                 prev_label = label
 
-        # 归一化计算转移概率
+        # 归一化计算Tk概率
         for prev_label, next_labels in trans_counts.items():
             total_trans = sum(next_labels.values())
             for next_label, count in next_labels.items():
                 self.trans_probs[prev_label][next_label] = count / total_trans
 
-        # 归一化计算发射概率
+        # 归一化计算Sj概率
         for label, words in emit_counts.items():
             total_emit = sum(words.values())
             for word, count in words.items():
@@ -58,7 +88,7 @@ class CRFSegmenter:
 
         # 初始化
         for label in self.labels:
-            dp[0][label] = self.emit_probs[label].get(sentence[0], 0.0001)  # 发射概率
+            dp[0][label] = self.emit_probs[label].get(sentence[0], 0.0001)  # 特征概率
             backtrack[0][label] = None
 
         # 动态规划计算最优路径
@@ -110,3 +140,4 @@ if __name__ == "__main__":
     predicted_tags = crf.viterbi(test_sentence)
     print(test_sentence)
     print("BMES 预测结果:", predicted_tags)
+    print(crf.segment("北京大学很棒"))

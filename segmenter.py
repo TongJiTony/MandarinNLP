@@ -19,6 +19,7 @@ class FMMSegmenter:
         while index < text_len:
             word = None
 
+            # 先进行分词预处理，如特殊符号，年份数字，字母等，提高效率并减少歧义
             # 特殊符号处理
             if text[index] in self.special_symbols:
                 word = text[index]
