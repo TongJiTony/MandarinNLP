@@ -21,3 +21,12 @@ if __name__== '__main__':
     print("RMinMSegmenter:")
     print(RMinMSegmenter.segment(text))
     print(RMinMSegmenter.segment(hard_text))
+
+    segmenter = segmenter.CRFSegmenter()
+    # 训练模型
+    train_file = "bmes_train_pku.txt"
+    segmenter.train(train_file)
+    
+    # 测试分词
+    segmented_words = segmenter.segment(hard_text)
+    print("分词结果:", segmented_words)

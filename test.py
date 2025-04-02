@@ -28,14 +28,19 @@ def evaluate(y_true, y_pred):
         print("y_pred:{}".format(len(y_pred)))
         print(y_pred[:20])
         return
-    precision = precision_score(y_true, y_pred, average='micro')
-    recall = recall_score(y_true, y_pred, average='micro')
-    f1 = f1_score(y_true, y_pred, average='micro')
+    
+    true_set = set(y_true)
+    pred_set = set(y_pred)
+    common = true_set & pred_set
+    precision = len(common) / len(pred_set) if pred_set else 0
+    recall = len(common) / len(true_set) if true_set else 0
+    f1 = 2 * precision * recall / (precision + recall) if precision + recall > 0 else 0
     print(f"Precision: {precision:.2f}")
     print(f"Recall: {recall:.2f}")
     print(f"F1 Score: {f1:.2f}")
 
-from segmenter import FMMSegmenter, RMinMSegmenter
+
+from segmenter import FMMSegmenter, RMinMSegmenter, CRFSegmenter
 
 if __name__ == "__main__":
     # 文件路径
@@ -46,7 +51,11 @@ if __name__ == "__main__":
     test_lines, gold_lines = load_data(test_file, gold_file)
 
     # 初始化分词器
-    segmenter = FMMSegmenter('dict.txt')
+    # segmenter = FMMSegmenter('dict.txt')
+    segmenter = CRFSegmenter()
+    # 训练模型
+    train_file = "bmes_train_pku.txt"
+    segmenter.train(train_file)
 
     # 测试分词器
     y_true, y_pred = test_segmenter(segmenter, test_lines, gold_lines)

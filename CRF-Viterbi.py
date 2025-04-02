@@ -98,7 +98,7 @@ if __name__ == "__main__":
     crf = CRFSegmenter(labels)
 
     # 加载 BMES 格式训练数据
-    train_file = "bmes_train_pku_mini.txt"
+    train_file = "bmes_train_pku.txt"
     train_data = crf.load_bmes_data(train_file)
 
     # 训练 CRF
@@ -108,4 +108,5 @@ if __name__ == "__main__":
     # 测试句子
     test_sentence = ["北", "京", "大", "学", "很", "棒"]
     predicted_tags = crf.viterbi(test_sentence)
+    print(test_sentence)
     print("BMES 预测结果:", predicted_tags)

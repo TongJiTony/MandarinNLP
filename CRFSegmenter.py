@@ -43,10 +43,34 @@ def extract_features(sent):
 def extract_labels(sent):
     return [label for _, label in sent]
 
+# BMES 分词函数
+def bmes_to_words(chars, tags):
+    words = []
+    word = ""
+    for char, tag in zip(chars, tags):
+        if tag == 'B':
+            if word:  # 如果当前有词，先加入到结果中
+                words.append(word)
+            word = char
+        elif tag == 'M':
+            word += char
+        elif tag == 'E':
+            word += char
+            words.append(word)  # 结束一个词
+            word = ""
+        elif tag == 'S':
+            if word:  # 如果当前有词，先加入到结果中
+                words.append(word)
+            words.append(char)  # S 直接是一个单独的词
+            word = ""
+    if word:  # 如果最后还有未结束的词，加入到结果中
+        words.append(word)
+    return words
+
 # 主程序
 if __name__ == "__main__":
     # 加载训练数据
-    train_file = "bmes_train_pku_mini.txt"
+    train_file = "bmes_train_pku.txt"
     train_data = load_bmes_data(train_file)
 
     # 提取训练数据的特征和标签
@@ -66,4 +90,9 @@ if __name__ == "__main__":
     test_sent = [('清', 'B'), ('华', 'M'), ('大', 'M'), ('学', 'E'), ('是', 'S')]
     X_test = extract_features(test_sent)  # 提取测试特征
     y_pred = crf.predict([X_test])[0]    # 预测 BMES 标签
+    print(test_sent)
     print("BMES 标签:", y_pred)
+
+    chars = [test_sent[i][0] for i in range(len(test_sent))]
+    segmented_words = bmes_to_words(chars, y_pred)
+    print("分词结果:", segmented_words)

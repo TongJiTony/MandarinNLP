@@ -24,10 +24,10 @@ def generate_bmes_data(sentence):
 
 
 if __name__ == "__main__":
-    gold_file = "pku_test_mini_gold.txt"
+    gold_file = "pku_test_gold.txt"
     sentences = load_data(gold_file)
     
-    output_file = "bmes_train_pku_mini.txt"
+    output_file = "bmes_train_pku.txt"
     with open(output_file, 'w', encoding='utf-8') as f_out:
         for sentence in sentences:
             # 转换为 BMES 格式
