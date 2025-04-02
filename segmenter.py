@@ -119,12 +119,13 @@ class RMinMSegmenter:
         return result
 
 import sklearn_crfsuite
-
+# 使用crfsuite中的crf进行分词，并添加各种功能函数，如数据加载，特征提取及将预判标签转换为分词结果
 class CRFSegmenter:
     def __init__(self):
+        # 由于训练数据量不大，所以使用平均感知机，相比之下lbfgs拟牛顿法更适合大规模数据训练
         self.crf = sklearn_crfsuite.CRF(
-            algorithm='lbfgs',
-            max_iterations=100,
+            algorithm='ap',
+            max_iterations=1000,
             all_possible_transitions=True
         )
     
@@ -213,5 +214,5 @@ class CRFSegmenter:
         dummy_tags = ['S'] * len(chars)  # 初始化一个假标签列表，仅用于生成特征
         sent = [(char, tag) for char, tag in zip(chars, dummy_tags)]
         X_test = self.extract_features(sent)  # 提取测试特征
-        y_pred = self.crf.predict([X_test])[0]  # 预测 BMES 标签
+        y_pred = self.crf.predict([X_test])[0]  # 预测 BMES 标签, 每一句返回的是[[]]，因此需要提取[0]
         return self.bmes_to_words(chars, y_pred) 

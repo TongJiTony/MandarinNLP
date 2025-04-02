@@ -21,13 +21,13 @@ def test_segmenter(segmenter, test_lines, gold_lines):
 
 # 计算分词准确率
 def evaluate(y_true, y_pred):
-    if len(y_true) != len(y_pred):
-        print("list length are different between y_true and y_pred, show first 20 elements")
-        print("y_true:{}".format(len(y_true))) 
-        print(y_true[:20])
-        print("y_pred:{}".format(len(y_pred)))
-        print(y_pred[:20])
-        return
+    # if len(y_true) != len(y_pred):
+    #     print("list length are different between y_true and y_pred, show first 20 elements")
+    #     print("y_true:{}".format(len(y_true))) 
+    #     print(y_true[:20])
+    #     print("y_pred:{}".format(len(y_pred)))
+    #     print(y_pred[:20])
+    #     return
     
     true_set = set(y_true)
     pred_set = set(y_pred)
@@ -50,7 +50,7 @@ if __name__ == "__main__":
     # 加载数据
     test_lines, gold_lines = load_data(test_file, gold_file)
 
-    # 初始化分词器
+    # 初始化分词器(CRF需要进行训练， 机械分词可使用FMM或RMinM，读取dict字典)
     # segmenter = FMMSegmenter('dict.txt')
     segmenter = CRFSegmenter()
     # 训练模型
