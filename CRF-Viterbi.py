@@ -45,9 +45,6 @@ class CRFSegmenter:
 
     def segment(self, text):
         chars = list(text)  # 将输入文本转为字符列表
-        # dummy_tags = ['S'] * len(chars)  # 初始化一个假标签列表，仅用于生成特征
-        # sent = [(char, tag) for char, tag in zip(chars, dummy_tags)]
-        # X_test = self.extract_features(sent)  # 提取测试特征
         y_pred = self.viterbi(chars)
         return self.bmes_to_words(chars, y_pred) 
 
