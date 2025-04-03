@@ -19,16 +19,8 @@ def test_segmenter(segmenter, test_lines, gold_lines):
         y_pred.extend(segmenter.segment(test_text))  # 分词器输出
     return y_true, y_pred
 
-# 计算分词准确率
-def evaluate(y_true, y_pred):
-    # if len(y_true) != len(y_pred):
-    #     print("list length are different between y_true and y_pred, show first 20 elements")
-    #     print("y_true:{}".format(len(y_true))) 
-    #     print(y_true[:20])
-    #     print("y_pred:{}".format(len(y_pred)))
-    #     print(y_pred[:20])
-    #     return
-    
+# 计算分词准确率，召回率和F1 Score
+def evaluate(y_true, y_pred):    
     true_set = set(y_true)
     pred_set = set(y_pred)
     common = true_set & pred_set
@@ -52,9 +44,9 @@ if __name__ == "__main__":
 
     # 初始化分词器(通过注释不同段落进行选择，CRF需要进行训练， 机械分词可使用FMM或RMinM，读取dict字典)
     # segmenter = FMMSegmenter('dict.txt')
-
-    # 训练模型
+    # segmenter = HMMSegmenter()
     segmenter = CRFSegmenter()
+    # 训练模型（CRF或者HMM都是同样的步骤）
     train_file = "bmes_train_pku.txt"
     segmenter.train(train_file)
 
