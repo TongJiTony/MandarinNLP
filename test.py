@@ -40,7 +40,7 @@ def evaluate(y_true, y_pred):
     print(f"F1 Score: {f1:.2f}")
 
 
-from segmenter import FMMSegmenter, RMinMSegmenter, CRFSegmenter, DIYCRFSegmenter
+from segmenter import FMMSegmenter, RMinMSegmenter, CRFSegmenter, HMMSegmenter
 
 if __name__ == "__main__":
     # 文件路径
@@ -51,12 +51,12 @@ if __name__ == "__main__":
     test_lines, gold_lines = load_data(test_file, gold_file)
 
     # 初始化分词器(通过注释不同段落进行选择，CRF需要进行训练， 机械分词可使用FMM或RMinM，读取dict字典)
-    segmenter = FMMSegmenter('dict.txt')
+    # segmenter = FMMSegmenter('dict.txt')
 
-    # # 训练模型
-    # segmenter = DIYCRFSegmenter()
-    # train_file = "bmes_train_pku.txt"
-    # segmenter.train(train_file)
+    # 训练模型
+    segmenter = CRFSegmenter()
+    train_file = "bmes_train_pku.txt"
+    segmenter.train(train_file)
 
     # 测试分词器
     y_true, y_pred = test_segmenter(segmenter, test_lines, gold_lines)

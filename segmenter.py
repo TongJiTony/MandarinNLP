@@ -219,8 +219,9 @@ class CRFSegmenter:
         return self.bmes_to_words(chars, y_pred) 
 
 import numpy as np
+from math import log
 from collections import defaultdict
-class DIYCRFSegmenter:
+class HMMSegmenter:
     def __init__(self, labels = ["B", "M", "E", "S"]):
         self.labels = labels
         self.trans_probs = defaultdict(lambda: defaultdict(float))  # Tk转移概率矩阵，前一个状态到当前状态
