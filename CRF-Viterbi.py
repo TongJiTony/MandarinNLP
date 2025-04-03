@@ -88,7 +88,11 @@ class CRFSegmenter:
 
         # 初始化
         for label in self.labels:
-            dp[0][label] = self.emit_probs[label].get(sentence[0], 0.0001)  # 特征概率
+            # 限制首字符的标签种类
+            if label not in {'S', 'B'}:
+                dp[0][label] = 0.0001
+            else:
+                dp[0][label] = self.emit_probs[label].get(sentence[0], 0.0001)  # 特征概率
             backtrack[0][label] = None
 
         # 动态规划计算最优路径
@@ -103,6 +107,11 @@ class CRFSegmenter:
                         best_prev_label = prev_label
                 dp[i][curr_label] = max_prob
                 backtrack[i][curr_label] = best_prev_label
+            # 末字标签约束: 最后一个字只允许 'E' 和 'S'
+            if i == n - 1:
+                for curr_label in self.labels:
+                    if curr_label not in {'E', 'S'}:
+                        dp[i][curr_label] = float("-inf")
 
         # 回溯获取最优路径
         best_path = []
@@ -136,8 +145,8 @@ if __name__ == "__main__":
     print("CRF 训练完成！")
 
     # 测试句子
-    test_sentence = ["北", "京", "大", "学", "很", "棒"]
-    predicted_tags = crf.viterbi(test_sentence)
+    test_sentence = "共同创造美好的新世纪"
+    predicted_tags = crf.viterbi(list(test_sentence))
     print(test_sentence)
     print("BMES 预测结果:", predicted_tags)
-    print(crf.segment("北京大学很棒"))
+    print(crf.segment(test_sentence))
